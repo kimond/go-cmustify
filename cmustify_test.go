@@ -40,7 +40,7 @@ var formatMessageBodyTests = []struct {
 
 func TestFormatMessageBody(t *testing.T) {
 	for _, tt := range formatMessageBodyTests {
-		t.Run(tt.name, func(t *testing.T){
+		t.Run(tt.name, func(t *testing.T) {
 			result := Parse(tt.metaData)
 			messageBody := FormatMessageBody(result)
 			assert.Equal(t, messageBody, tt.expected)
@@ -50,4 +50,19 @@ func TestFormatMessageBody(t *testing.T) {
 
 func TestNotifySend(t *testing.T) {
 	NotifySend("sum", "test")
+}
+
+var notifierCalled = false
+
+func FakeNotifySend(s, b string) error { notifierCalled = true; return nil }
+
+func TestHandleData(t *testing.T) {
+	t.Run("Should call the notifier", func(t *testing.T) {
+		HandleData(FakeNotifySend, "status playing")
+		assert.True(t, notifierCalled)
+	})
+}
+
+func TestPrintUsage(t *testing.T) {
+	printUsage()
 }

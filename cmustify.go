@@ -64,16 +64,18 @@ func FormatMessageBody(m Metadata) string {
 	return notificationBody
 }
 
-func NotifySend(summary string, content string) {
+type Notifier func(string, string) error
+
+func NotifySend(summary, content string) error {
 	notify.Init("cmustify")
 	notification := notify.NotificationNew(summary, content, "")
-	notify.NotificationShow(notification)
+	return notify.NotificationShow(notification)
 }
 
-func HandleData(cmusData string) {
+func HandleData(notifier Notifier, cmusData string) {
 	metaData := Parse(cmusData)
 	notificationBody := FormatMessageBody(metaData)
-	NotifySend("Cmustify - Current song", notificationBody)
+	notifier("Cmustify - Current song", notificationBody)
 }
 
 func printUsage() {
@@ -89,5 +91,5 @@ func main() {
 	args := os.Args[1:]
 	cmusData := strings.Join(args, " ")
 
-	HandleData(cmusData)
+	HandleData(NotifySend, cmusData)
 }
