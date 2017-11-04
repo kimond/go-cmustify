@@ -2,7 +2,10 @@ language: go
 
 go:
   - 1.9
-  - master
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libnotify-bin
 
 script:
  - go test -v ./...
