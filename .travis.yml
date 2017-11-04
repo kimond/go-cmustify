@@ -8,4 +8,7 @@ before_install:
   - sudo apt-get install -y libnotify-dev
 
 script:
- - go test -v ./...
+ - go test -v ./... -coverprofile=coverage.txt
+
+after_success:
+ - bash <(curl -s https://codecov.io/bash)
