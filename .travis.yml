@@ -5,7 +5,7 @@ go:
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y libnotify-bin
+  - sudo apt-get install -y libnotify
 
 script:
  - go test -v ./...
