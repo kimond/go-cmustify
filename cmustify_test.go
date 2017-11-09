@@ -23,23 +23,22 @@ func TestParse(t *testing.T) {
 	})
 }
 
-var formatMessageBodyTests = []struct {
-	name     string
-	metaData string
-	expected string
-}{
-	{"Should format data with title",
-		"status playing title Dancing with the stars", "Dancing with the stars"},
-	{"Should format data with title and artist",
-		"status playing title Dancing with the stars artist Jamo", "Dancing with the stars by Jamo"},
-	{"Should format data with title, artist and album",
-		"status playing title Dancing with the stars artist Jamo album Best", "Dancing with the stars by Jamo, Best"},
-	{"Should format data with no title",
-		"status playing", "Unknown"},
-}
-
 func TestFormatMessageBody(t *testing.T) {
-	for _, tt := range formatMessageBodyTests {
+	table := []struct {
+		name     string
+		metaData string
+		expected string
+	}{
+		{"Should format data with title",
+			"status playing title Dancing with the stars", "Dancing with the stars"},
+		{"Should format data with title and artist",
+			"status playing title Dancing with the stars artist Jamo", "Dancing with the stars by Jamo"},
+		{"Should format data with title, artist and album",
+			"status playing title Dancing with the stars artist Jamo album Best", "Dancing with the stars by Jamo, Best"},
+		{"Should format data with no title",
+			"status playing", "Unknown"},
+	}
+	for _, tt := range table {
 		t.Run(tt.name, func(t *testing.T) {
 			result := Parse(tt.metaData)
 			messageBody := FormatMessageBody(result)
@@ -48,18 +47,22 @@ func TestFormatMessageBody(t *testing.T) {
 	}
 }
 
-func TestNotifySend(t *testing.T) {
-	NotifySend("sum", "test")
+func TestLibNotify(t *testing.T) {
+	n := new(libNotify)
+	n.send("test", "content")
 }
 
-var notifierCalled = false
+type fakeNotifier struct {
+	Called bool
+}
 
-func FakeNotifySend(s, b string) error { notifierCalled = true; return nil }
+func (n *fakeNotifier) send(s, b string) error { n.Called = true; return nil }
 
 func TestHandleData(t *testing.T) {
 	t.Run("Should call the notifier", func(t *testing.T) {
-		HandleData(FakeNotifySend, "status playing")
-		assert.True(t, notifierCalled)
+		n := new(fakeNotifier)
+		HandleData(n, "status playing")
+		assert.True(t, n.Called)
 	})
 }
 

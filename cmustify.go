@@ -64,18 +64,22 @@ func FormatMessageBody(m Metadata) string {
 	return notificationBody
 }
 
-type Notifier func(string, string) error
+type Notifier interface {
+	send(string, string) error
+}
 
-func NotifySend(summary, content string) error {
+type libNotify struct{}
+
+func (n *libNotify) send(summary, content string) error {
 	notify.Init("cmustify")
 	notification := notify.NotificationNew(summary, content, "")
 	return notify.NotificationShow(notification)
 }
 
-func HandleData(notifier Notifier, cmusData string) {
+func HandleData(n Notifier, cmusData string) {
 	metaData := Parse(cmusData)
 	notificationBody := FormatMessageBody(metaData)
-	notifier("Cmustify - Current song", notificationBody)
+	n.send("Cmustify - Current song", notificationBody)
 }
 
 func printUsage() {
@@ -91,5 +95,6 @@ func main() {
 	args := os.Args[1:]
 	cmusData := strings.Join(args, " ")
 
-	HandleData(NotifySend, cmusData)
+	notifier := new(libNotify)
+	HandleData(notifier, cmusData)
 }
